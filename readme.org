@@ -1,0 +1,6 @@
+* unicorn project
+** how to run
+#+BEGIN_SRC bash
+g++
+
+#+END_SRC
