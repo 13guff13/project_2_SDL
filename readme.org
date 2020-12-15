@@ -4,3 +4,7 @@
 g++
 
 #+END_SRC
+** docs
+*** SDL2 lib
+**** tutorial
+     :src: https://www.willusher.io/pages/sdl2/
