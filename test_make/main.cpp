@@ -83,43 +83,53 @@ int main(int argc, char **argv){
   }
 
   // ------adding bmp---------
-  std::string imagePath = getResourcePath() + "cs8x8.bmp";
-  SDL_Surface *bmp = SDL_LoadBMP(imagePath.c_str());
-  if (bmp == nullptr){
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    std::cout << "SDL_LoadBMP Error: " << SDL_GetError() << std::endl;
+  // std::string imagePath = getResourcePath() + "cs8x8.bmp";
+  // std::string imagePath = getResourcePath() + "Marine.bmp";
+  const std::string resPath = getResourcePath();
+  SDL_Texture *background = loadTexture(resPath + "cs8x8.bmp", renderer);
+  SDL_Texture *image = loadTexture(resPath + "Marine.bmp", renderer);
+  if (background == nullptr || image == nullptr){
+    cleanup(background, image, renderer, window);
     SDL_Quit();
     return 1;
   }
 
-  SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, bmp);
-  SDL_FreeSurface(bmp);
-  if (tex == nullptr){
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    std::cout << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
-    SDL_Quit();
-    return 1;
-  }
   // ---- draw the texture -------
   //A sleepy rendering loop, wait for 3 seconds and render and present the screen each time
-  for (int i = 0; i < 7; ++i){
-    //First clear the renderer
+  for (int i = 0; i < 3; ++i){
     SDL_RenderClear(renderer);
-    //Draw the texture      
-    SDL_RenderCopy(renderer, tex, NULL, NULL);
-    //Update the screen
+
+    int bW, bH;
+    std::cout << "bW: " << bW << std::endl;
+    SDL_QueryTexture(background, NULL, NULL, &bW, &bH);
+    renderTexture(background, renderer, 0, 0);
+    renderTexture(background, renderer, bW, 0);
+    renderTexture(background, renderer, bW*2, 0);
+    renderTexture(background, renderer, bW*3, 0);  
+    renderTexture(background, renderer, 0, bH);
+    renderTexture(background, renderer, bW, bH);
+    std::cout << "bW: " << bW << std::endl;
+    int iW, iH;
+    SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
+    int x = SCREEN_WIDTH / 2 - iW / 2;
+    int y = SCREEN_HEIGHT / 2 - iH / 2;
+    renderTexture(image, renderer, x, y);
+
     SDL_RenderPresent(renderer);
-    //Take a quick break after all that hard work
     SDL_Delay(1000);
+    // //First clear the renderer
+    // SDL_RenderClear(renderer);
+    // //Draw the texture      
+    // SDL_RenderCopy(renderer, tex, NULL, NULL);
+    // //Update the screen
+    // SDL_RenderPresent(renderer);
+    // //Take a quick break after all that hard work
+    // SDL_Delay(1000);
   }
 
   
   // todo: make clean up on each stage that can encounter an erro!
-  SDL_DestroyTexture(tex);
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
+  cleanup(background, image, renderer, window);
   SDL_Quit();
   return 0;
 }
