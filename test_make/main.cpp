@@ -15,6 +15,8 @@ const int STEP = 3;
 
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y);
+void renderClippedTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip);
+void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip = nullptr);
 /**
  * Log an SDL error with some error message to the output stream of our choice
  * @param os The output stream to write the message to
@@ -55,7 +57,35 @@ void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
     *x = SCREEN_WIDTH / 2 - iW / 2;
     *y = SCREEN_HEIGHT / 2 - iH / 2;
   }
-  renderTexture(image, renderer, *x, *y);
+
+  SDL_Rect clip;
+  clip.x = 0;
+  clip.y = 0;
+  clip.w = 30;
+  clip.h = 40;
+
+  std::cout << "clip: " << std::endl;
+  std::cout << "  "<< clip.x << std::endl;
+  std::cout << "  "<< clip.y << std::endl;
+  std::cout << "  "<< clip.w << std::endl;
+  std::cout << "  "<< clip.h << std::endl;
+
+  SDL_Rect src_rect;
+  clip.x = 0;
+  clip.y = 0;
+  clip.w = 30;
+  clip.h = 40;
+
+  SDL_Rect dest_rect;
+  clip.x = 0;
+  clip.y = 0;
+  clip.w = 300;
+  clip.h = 400;
+
+   // SDL_RenderCopy(renderer, image, NULL, NULL);
+  
+  renderClippedTexture(image, renderer, *x, *y, &clip);
+  // renderTexture(image, renderer, *x, *y);
 }
 
 void view_background(SDL_Texture* background, SDL_Renderer *renderer)
@@ -114,10 +144,65 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int
  * @param y The y coordinate to draw to
  */
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
+  float scale = 1;
   int w, h;
   SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-  renderTexture(tex, ren, x, y, w, h);
+  // actual width - w actual height - h
+  printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
+  renderTexture(tex, ren, x, y, (int)w*scale, (int)h*scale);
 }
+/**
+ * Draw an SDL_Texture to an SDL_Renderer at some destination rect
+ * taking a clip of the texture if desired
+ * @param tex The source texture we want to draw
+ * @param ren The renderer we want to draw to
+ * @param dst The destination rectangle to render the texture to
+ * @param clip The sub-section of the texture to draw (clipping rect)
+ *		default of nullptr draws the entire texture
+ */
+// void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip = nullptr)
+// {
+//   SDL_RenderCopy(ren, tex, clip, &dst);
+// }
+
+/**
+ * Draw an SDL_Texture to an SDL_Renderer at position x, y, preserving
+ * the texture's width and height and taking a clip of the texture if desired
+ * If a clip is passed, the clip's width and height will be used instead of
+ *	the texture's
+ * @param tex The source texture we want to draw
+ * @param ren The renderer we want to draw to
+ * @param x The x coordinate to draw to
+ * @param y The y coordinate to draw to
+ * @param clip The sub-section of the texture to draw (clipping rect)
+ *		default of nullptr draws the entire texture
+ */
+void renderClippedTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip = nullptr)
+{
+
+  float scale = 2;
+  int w, h;
+  SDL_QueryTexture(tex, NULL, NULL, &w, &h);
+  // actual width - w actual height - h
+  printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
+  // renderTexture(tex, ren, x, y, (int)w*scale, (int)h*scale);
+  int clipw = 35,cliph = 30;
+  
+  SDL_Rect dst;
+  dst.x = x;
+  dst.y = y;
+  dst.w = (int)clipw*scale;
+  dst.h = (int)cliph*scale;
+
+  SDL_Rect clip2;
+  clip2.x = 0;
+  clip2.y = 0;
+  clip2.w = clipw;
+  clip2.h = cliph;
+  
+  SDL_RenderCopy(ren, tex, &clip2, &dst);
+}
+
 int main(int argc, char **argv){
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
     logSDLError(std::cout, "SDL_Init");
