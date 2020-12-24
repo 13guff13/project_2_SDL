@@ -23,6 +23,15 @@ void logSDLError(std::ostream &os, const std::string &msg){
   os << msg << " error: " << SDL_GetError() << std::endl;
 }
 
+void view_foreground(SDL_Texture* image, SDL_Renderer *renderer)
+{
+  int iW, iH;
+  SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
+  int x = SCREEN_WIDTH / 2 - iW / 2;
+  int y = SCREEN_HEIGHT / 2 - iH / 2;
+  renderTexture(image, renderer, x, y);
+}
+
 void view_background(SDL_Texture* background, SDL_Renderer *renderer)
 {
   //Determine how many tiles we'll need to fill the screen
@@ -131,11 +140,7 @@ int main(int argc, char **argv){
     SDL_RenderClear(renderer);
 
     view_background(background, renderer);
-    int iW, iH;
-    SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
-    int x = SCREEN_WIDTH / 2 - iW / 2;
-    int y = SCREEN_HEIGHT / 2 - iH / 2;
-    renderTexture(image, renderer, x, y);
+    view_foreground(image, renderer);
 
     SDL_RenderPresent(renderer);
     SDL_Delay(1000);
