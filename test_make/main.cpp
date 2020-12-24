@@ -136,16 +136,29 @@ int main(int argc, char **argv){
 
   // ---- draw the texture -------
   //A sleepy rendering loop, wait for 3 seconds and render and present the screen each time
-  for (int i = 0; i < 1; ++i){
+  SDL_Event e;
+  bool quit = false;
+  while (!quit){
+    while (SDL_PollEvent(&e)){
+      if (e.type == SDL_QUIT){
+	quit = true;
+      }
+      if (e.type == SDL_KEYDOWN){
+	quit = false;
+      }
+      if (e.type == SDL_MOUSEBUTTONDOWN){
+	quit = false;
+      }
+    }
+    //Render the scene
     SDL_RenderClear(renderer);
 
     view_background(background, renderer);
     view_foreground(image, renderer);
 
     SDL_RenderPresent(renderer);
-    SDL_Delay(1000);
+    // SDL_Delay(1000);
   }
-
   
   // todo: make clean up on each stage that can encounter an erro!
   cleanup(background, image, renderer, window);
