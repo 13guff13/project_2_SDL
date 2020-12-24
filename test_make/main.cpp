@@ -11,6 +11,7 @@ const int SCREEN_HEIGHT = 480;
 const int TILE_WIDTH = 148;
 const int TILE_HEIGHT = 125;
 
+const int STEP = 3;
 
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y);
@@ -21,6 +22,28 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y);
  */
 void logSDLError(std::ostream &os, const std::string &msg){
   os << msg << " error: " << SDL_GetError() << std::endl;
+}
+
+void move_obj_position(int* x, int* y, int key_code)
+{
+  switch(key_code) {
+    //arrow up
+  case 82:
+    *y -= STEP;
+    break;
+    //arrow down
+  case 81:
+    *y += STEP;
+    break;
+    //arrow left
+  case 80:
+    *x -= STEP;
+    break;
+    //arrow right
+  case 79:
+    *x += STEP;
+    break;
+  }
 }
 
 void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
@@ -153,6 +176,7 @@ int main(int argc, char **argv){
 	if (keycode == 41) {
 	  quit = true;
 	}
+	move_obj_position(&x, &y, keycode);
       }
       if (e.type == SDL_MOUSEBUTTONDOWN){
 	quit = false;
