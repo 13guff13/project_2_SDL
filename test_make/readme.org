@@ -1,0 +1,11 @@
+* readme
+** libs
+*** ttf
+#+BEGIN_SRC bash
+sudo apt-get install libsdl2-ttf-dev
+
+#+END_SRC
+*** img
+#+BEGIN_SRC bash
+sudo apt-get install libsdl2-image-dev
+#+END_SRC
