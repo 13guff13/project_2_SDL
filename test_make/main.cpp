@@ -119,7 +119,8 @@ int main(int argc, char **argv){
   SDL_Texture *background = loadTexture(resPath + "creep.png", renderer);
   SDL_Texture *image = loadTexture(resPath + "zerg_scourge.png", renderer);
   if (background == nullptr || image == nullptr){
-    cleanup(background, image, renderer, window);
+    cleanup(background, image, renderer, window);    
+    IMG_Quit();
     SDL_Quit();
     return 1;
   }
@@ -143,6 +144,7 @@ int main(int argc, char **argv){
   
   // todo: make clean up on each stage that can encounter an erro!
   cleanup(background, image, renderer, window);
+  IMG_Quit();
   SDL_Quit();
   return 0;
 }
