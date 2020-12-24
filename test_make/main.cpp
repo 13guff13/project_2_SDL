@@ -7,7 +7,13 @@
 
 const int SCREEN_WIDTH  = 640;
 const int SCREEN_HEIGHT = 480;
-// cleanup()
+
+const int TILE_WIDTH = 148;
+const int TILE_HEIGHT = 125;
+
+
+void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
+void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y);
 /**
  * Log an SDL error with some error message to the output stream of our choice
  * @param os The output stream to write the message to
@@ -15,6 +21,20 @@ const int SCREEN_HEIGHT = 480;
  */
 void logSDLError(std::ostream &os, const std::string &msg){
   os << msg << " error: " << SDL_GetError() << std::endl;
+}
+
+void view_background(SDL_Texture* background, SDL_Renderer *renderer)
+{
+  //Determine how many tiles we'll need to fill the screen
+  int xTiles = SCREEN_WIDTH / TILE_WIDTH;
+  int yTiles = SCREEN_HEIGHT / TILE_HEIGHT;
+
+  //Draw the tiles by calculating their positions
+  for (int i = 0; i < xTiles * yTiles; ++i){
+    int x = i % xTiles;
+    int y = i / xTiles;
+    renderTexture(background, renderer, x * TILE_WIDTH, y * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+  }
 }
 
 /**
@@ -85,12 +105,19 @@ int main(int argc, char **argv){
     return 1;
   }
 
+  //------ init SDL_IMG lib --------
+  if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG){
+    logSDLError(std::cout, "IMG_Init");
+    SDL_Quit();
+    return 1;
+  }
+
   // ------adding bmp---------
   // std::string imagePath = getResourcePath() + "cs8x8.bmp";
   // std::string imagePath = getResourcePath() + "Marine.bmp";
   const std::string resPath = getResourcePath();
-  SDL_Texture *background = loadTexture(resPath + "cs8x8.bmp", renderer);
-  SDL_Texture *image = loadTexture(resPath + "Marine.bmp", renderer);
+  SDL_Texture *background = loadTexture(resPath + "creep.png", renderer);
+  SDL_Texture *image = loadTexture(resPath + "zerg_scourge.png", renderer);
   if (background == nullptr || image == nullptr){
     cleanup(background, image, renderer, window);
     SDL_Quit();
@@ -99,19 +126,10 @@ int main(int argc, char **argv){
 
   // ---- draw the texture -------
   //A sleepy rendering loop, wait for 3 seconds and render and present the screen each time
-  for (int i = 0; i < 3; ++i){
+  for (int i = 0; i < 1; ++i){
     SDL_RenderClear(renderer);
 
-    int bW, bH;
-    std::cout << "bW: " << bW << std::endl;
-    SDL_QueryTexture(background, NULL, NULL, &bW, &bH);
-    renderTexture(background, renderer, 0, 0);
-    renderTexture(background, renderer, bW, 0);
-    renderTexture(background, renderer, bW*2, 0);
-    renderTexture(background, renderer, bW*3, 0);  
-    renderTexture(background, renderer, 0, bH);
-    renderTexture(background, renderer, bW, bH);
-    std::cout << "bW: " << bW << std::endl;
+    view_background(background, renderer);
     int iW, iH;
     SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
     int x = SCREEN_WIDTH / 2 - iW / 2;
