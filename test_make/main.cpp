@@ -23,13 +23,16 @@ void logSDLError(std::ostream &os, const std::string &msg){
   os << msg << " error: " << SDL_GetError() << std::endl;
 }
 
-void view_foreground(SDL_Texture* image, SDL_Renderer *renderer)
+void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
 {
-  int iW, iH;
-  SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
-  int x = SCREEN_WIDTH / 2 - iW / 2;
-  int y = SCREEN_HEIGHT / 2 - iH / 2;
-  renderTexture(image, renderer, x, y);
+  // rendred at give position if (passed(x,y))
+  if (*x == NULL) {
+    int iW, iH;
+    SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
+    *x = SCREEN_WIDTH / 2 - iW / 2;
+    *y = SCREEN_HEIGHT / 2 - iH / 2;
+  }
+  renderTexture(image, renderer, *x, *y);
 }
 
 void view_background(SDL_Texture* background, SDL_Renderer *renderer)
@@ -136,6 +139,7 @@ int main(int argc, char **argv){
 
   // ---- draw the texture -------
   //A sleepy rendering loop, wait for 3 seconds and render and present the screen each time
+  int x = NULL, y = NULL;
   SDL_Event e;
   bool quit = false;
   while (!quit){
@@ -144,7 +148,11 @@ int main(int argc, char **argv){
 	quit = true;
       }
       if (e.type == SDL_KEYDOWN){
-	quit = false;
+	int keycode = e.key.keysym.scancode;
+	std::cout << "key pressed down = " << keycode << std::endl;
+	if (keycode == 41) {
+	  quit = true;
+	}
       }
       if (e.type == SDL_MOUSEBUTTONDOWN){
 	quit = false;
@@ -154,7 +162,7 @@ int main(int argc, char **argv){
     SDL_RenderClear(renderer);
 
     view_background(background, renderer);
-    view_foreground(image, renderer);
+    view_foreground(image, renderer, &x, &y);
 
     SDL_RenderPresent(renderer);
     // SDL_Delay(1000);
