@@ -1,4 +1,5 @@
 #include "./SDL2_image-2.0.5/SDL2_image-2.0.5/SDL_image.h"
+#include "./SDL2_ttf-2.0.15/SDL2_ttf-2.0.15/SDL_ttf.h"
 #include <iostream>
 #include <string>
 #include <SDL.h>
@@ -12,6 +13,8 @@ const int TILE_WIDTH = 148;
 const int TILE_HEIGHT = 125;
 
 const int STEP = 3;
+
+// TTF_OpenFont("asdf", 12);
 
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y);
