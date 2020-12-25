@@ -14,12 +14,12 @@ const int TILE_HEIGHT = 125;
 
 const int STEP = 3;
 
-// TTF_OpenFont("asdf", 12);
-
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y);
 void renderClippedTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip = nullptr);
+SDL_Texture* renderText(const std::string &message, const std::string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer);
+
 /**
  * Log an SDL error with some error message to the output stream of our choice
  * @param os The output stream to write the message to
@@ -27,6 +27,40 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *
  */
 void logSDLError(std::ostream &os, const std::string &msg){
   os << msg << " error: " << SDL_GetError() << std::endl;
+}
+
+/*
+ * @param message The message we want to display
+ * @param fontFile The font we want to use to render the text
+ * @param color The color we want the text to be
+ * @param fontSize The size we want the font to be
+ * @param renderer The renderer to load the texture in
+ * @\return An SDL_Texture containing the rendered message, or nullptr if something went wrong
+ */
+SDL_Texture* renderText(const std::string &message, const std::string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer)
+{
+  //Open the font
+  TTF_Font *font = TTF_OpenFont(fontFile.c_str(), fontSize);
+  if (font == nullptr){
+    logSDLError(std::cout, "TTF_OpenFont");
+    return nullptr;
+  }	
+  //We need to first render to a surface as that's what TTF_RenderText
+  //returns, then load that surface into a texture
+  SDL_Surface *surf = TTF_RenderText_Blended(font, message.c_str(), color);
+  if (surf == nullptr){
+    TTF_CloseFont(font);
+    logSDLError(std::cout, "TTF_RenderText");
+    return nullptr;
+  }
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surf);
+  if (texture == nullptr){
+    logSDLError(std::cout, "CreateTexture");
+  }
+  //Clean up the surface and font
+  SDL_FreeSurface(surf);
+  TTF_CloseFont(font);
+  return texture;
 }
 
 void move_obj_position(int* x, int* y, int key_code)
@@ -50,6 +84,28 @@ void move_obj_position(int* x, int* y, int key_code)
     break;
   }
 }
+void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window)
+{
+  const std::string resPath = getResourcePath("linux-libertine");
+  // std::cout << "path: " << resPath << std::endl;
+  // return ;
+  SDL_Color color = { 255, 255, 255, 255 };
+  SDL_Texture *text = renderText("Fuck project 2!", resPath + "LinLibertine_aBS.ttf",
+				  color, 64, renderer);
+  if (text == nullptr){
+    cleanup(renderer, window);
+    TTF_Quit();
+    SDL_Quit();
+    return ;
+  }
+  //Get the texture w/h so we can center it in the screen
+  int iW, iH;
+  SDL_QueryTexture(text, NULL, NULL, &iW, &iH);
+  int x = SCREEN_WIDTH / 2 - iW / 2;
+  int y = SCREEN_HEIGHT / 2 - iH / 2;
+  
+  renderTexture(text, renderer, x, y);  
+}
 
 void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
 {
@@ -67,11 +123,11 @@ void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
   clip.w = 30;
   clip.h = 40;
 
-  std::cout << "clip: " << std::endl;
-  std::cout << "  "<< clip.x << std::endl;
-  std::cout << "  "<< clip.y << std::endl;
-  std::cout << "  "<< clip.w << std::endl;
-  std::cout << "  "<< clip.h << std::endl;
+  // std::cout << "clip: " << std::endl;
+  // std::cout << "  "<< clip.x << std::endl;
+  // std::cout << "  "<< clip.y << std::endl;
+  // std::cout << "  "<< clip.w << std::endl;
+  // std::cout << "  "<< clip.h << std::endl;
 
   SDL_Rect src_rect;
   clip.x = 0;
@@ -151,7 +207,7 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
   int w, h;
   SDL_QueryTexture(tex, NULL, NULL, &w, &h);
   // actual width - w actual height - h
-  printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
+  // printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
   renderTexture(tex, ren, x, y, (int)w*scale, (int)h*scale);
 }
 /**
@@ -186,9 +242,7 @@ void renderClippedTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL
   float scale = 2;
   int w, h;
   SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-  // actual width - w actual height - h
-  printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
-  // renderTexture(tex, ren, x, y, (int)w*scale, (int)h*scale);
+  // printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
   int clipw = 35,cliph = 30;
   
   SDL_Rect dst;
@@ -235,6 +289,13 @@ int main(int argc, char **argv){
     return 1;
   }
 
+  //------ init SDL_TTF lib --------
+  if (TTF_Init() != 0){
+    logSDLError(std::cout, "TTF_Init");
+    SDL_Quit();
+    return 1;
+  }
+
   // ------adding bmp---------
   // std::string imagePath = getResourcePath() + "cs8x8.bmp";
   // std::string imagePath = getResourcePath() + "Marine.bmp";
@@ -275,7 +336,8 @@ int main(int argc, char **argv){
 
     view_background(background, renderer);
     view_foreground(image, renderer, &x, &y);
-
+    view_foreground_text(renderer, window);
+      
     SDL_RenderPresent(renderer);
     // SDL_Delay(1000);
   }
