@@ -9,8 +9,11 @@
 const int SCREEN_WIDTH  = 640;
 const int SCREEN_HEIGHT = 480;
 
-const int TILE_WIDTH = 148;
-const int TILE_HEIGHT = 125;
+const float SCALE_TILE = 0.2;
+const int TILE_WIDTH = (int) 148 * SCALE_TILE;
+const int TILE_HEIGHT = (int) 125 * SCALE_TILE;
+
+const float SCALE_CARACTER = 0.2;
 
 const int STEP = 3;
 
@@ -300,7 +303,7 @@ int main(int argc, char **argv){
   // std::string imagePath = getResourcePath() + "cs8x8.bmp";
   // std::string imagePath = getResourcePath() + "Marine.bmp";
   const std::string resPath = getResourcePath();
-  SDL_Texture *background = loadTexture(resPath + "creep.png", renderer);
+  SDL_Texture *background = loadTexture(resPath + "mario-block.png", renderer);
   SDL_Texture *image = loadTexture(resPath + "zerg_scourge.png", renderer);
   if (background == nullptr || image == nullptr){
     cleanup(background, image, renderer, window);    
