@@ -38,7 +38,7 @@ void move_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount
   for (int i =0; i < amount; i++) {
     //todo: add width to x position
     //todo: add repeat impediments method
-    if(impediments[i].x < 0) {
+    if(impediments[i].x + impediments[i].w < 0) {
       impediments[i].x = orig_impediments_x[i];
     }
     impediments[i].x -= GAME_SPEED;
@@ -144,7 +144,7 @@ int main(int argc, char ** argv)
   std::cout << impediments[0].x << "::" << impediments[1].x << std::endl;
   bool quit = false;
   SDL_Event event;
-  int x = 288;
+  int x = 10;
   int y = FLOOR - 100;
 
 
@@ -161,7 +161,6 @@ int main(int argc, char ** argv)
     SDL_Quit();
     return 1;
   }
-
   
 
   SDL_Rect ground = { 0, FLOOR, SCREEN_WIDTH, 70};
@@ -212,6 +211,8 @@ int main(int argc, char ** argv)
 	  if(event.key.keysym.sym == 110){
 	    reset_impediments(impediments, IMPEDIMENTS_AMOUNT);
 	    horizont = 0;
+	    rect1.x = x;
+	    rect1.y = y;
 	  }
 
 	  switch (event.key.keysym.sym)
@@ -252,7 +253,7 @@ int main(int argc, char ** argv)
 	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 
       
-      SDL_RenderFillRect(renderer, &rect2);
+      /* SDL_RenderFillRect(renderer, &rect2); */
 
       view_foreground_text(renderer, window, label.c_str());
 
