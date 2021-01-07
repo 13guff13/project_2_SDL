@@ -28,7 +28,11 @@ SDL_Rect impediments[30] = {
 			    { SCREEN_WIDTH + 270, FLOOR - 60, 80, 60 },
 };
 
-// from 0 to 3.14
+void reset_impediments(SDL_Rect* impediments, int amount) {
+  for (int i =0; i < amount; i++) {
+    impediments[i].x = orig_impediments_x[i];
+  }
+}
 
 void move_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount) {
   for (int i =0; i < amount; i++) {
@@ -40,7 +44,6 @@ void move_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount
     impediments[i].x -= GAME_SPEED;
   }
 }
-
 void rend_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount) {
   for (int i =0; i < amount; i++) {
     SDL_RenderFillRect(renderer, &impediments[i]);
@@ -122,8 +125,7 @@ void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char
   //Get the texture w/h so we can center it in the screen
   int iW, iH;
   SDL_QueryTexture(text, NULL, NULL, &iW, &iH);
-  // int x = SCREEN_WIDTH / 2 - iW / 2;
-  // int y = SCREEN_HEIGHT / 2 - iH / 2;
+
   int x = SCREEN_WIDTH / 2 - iW / 2;
   int y = 0;
   
@@ -205,7 +207,13 @@ int main(int argc, char ** argv)
 	  quit = true;
 	  break;
 	case SDL_KEYDOWN:
+	  std::cout << "keycode: " << event.key.keysym.sym << std::endl;
 	  if(event.key.keysym.sym == SDLK_ESCAPE) quit = true;
+	  if(event.key.keysym.sym == 110){
+	    reset_impediments(impediments, IMPEDIMENTS_AMOUNT);
+	    horizont = 0;
+	  }
+
 	  switch (event.key.keysym.sym)
 	    {
 	    case SDLK_LEFT:  rect1.x--; break;
