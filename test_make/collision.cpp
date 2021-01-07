@@ -111,6 +111,7 @@ int main(int argc, char ** argv)
 	  quit = true;
 	  break;
 	case SDL_KEYDOWN:
+	  if(event.key.keysym.sym == SDLK_ESCAPE) quit = true;
 	  switch (event.key.keysym.sym)
 	    {
 	    case SDLK_LEFT:  rect1.x--; break;
