@@ -5,14 +5,37 @@
 const int SCREEN_WIDTH  = 640;
 const int SCREEN_HEIGHT = 480;
 const int FLOOR = SCREEN_HEIGHT - 60;
+const float GAME_SPEED = 5;
+const int LEVEL_LENGTH = 1000;
+
+const int IMPEDIMENTS_AMOUNT = 3;
+
+int orig_impediments_x[30] = {
+				   SCREEN_WIDTH + 920,
+				   SCREEN_WIDTH + 770,
+				   SCREEN_WIDTH + 370,
+};
+
+
 
 SDL_Rect impediments[30] = {
-			    { 0, FLOOR - 100, 80, 100 },
-			    { 220, FLOOR - 90, 80, 90 }
+			    { SCREEN_WIDTH + 920, FLOOR - 50, 80, 50 },
+			    { SCREEN_WIDTH + 470, FLOOR - 60, 80, 60 },
+			    { SCREEN_WIDTH + 270, FLOOR - 60, 80, 60 },
 };
 
 // from 0 to 3.14
 
+void move_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount) {
+  for (int i =0; i < amount; i++) {
+    //todo: add width to x position
+    //todo: add repeat impediments method
+    if(impediments[i].x < 0) {
+      impediments[i].x = orig_impediments_x[i];
+    }
+    impediments[i].x -= GAME_SPEED;
+  }
+}
 
 void rend_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount) {
   for (int i =0; i < amount; i++) {
@@ -40,7 +63,7 @@ int main(int argc, char ** argv)
   int x = 288;
   int y = FLOOR - 100;
 
-  float game_speed = 5;
+
 
   // init SDL
 
@@ -51,11 +74,11 @@ int main(int argc, char ** argv)
 
   SDL_Rect ground = { 0, FLOOR, SCREEN_WIDTH, 70};
 
-
-  
   SDL_Rect rect1 = { x, y, 100, 100 };
   SDL_Rect rect2 = { 0, FLOOR - 100, 70, 100 };
 
+  int horizont = SCREEN_WIDTH;
+  
   // handle events
   int hope_height = 190;
   float jump_position = 0.0;
@@ -65,17 +88,20 @@ int main(int argc, char ** argv)
     {
       SDL_Delay(30);
       SDL_PollEvent(&event);
-
-      rect2.x += game_speed;
+      
+      horizont += GAME_SPEED;
+      // rect2.x -= GAME_SPEED;
+      
+      move_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
 
       // jump
       if (rect1.y < y) {
-      	jump_position += 0.1;
+      	jump_position += 0.07;
       	rect1.y = y - sin(jump_position) * hope_height;
       }
       if (rect1.y > y) {
 	jump_position = 0;
-	rect1.y = y;
+	rect1.y = y;//todo: remove this for Nick!
       }
       std::cout << "jump" << jump_position << " " << rect1.y<< " " << y << std::endl;
       
@@ -96,7 +122,7 @@ int main(int argc, char ** argv)
         }
 
       SDL_bool collision = SDL_HasIntersection(&rect1, &rect2);
-      int imp_collision = collision_with_impediments(renderer, &rect1, impediments, 2);
+      int imp_collision = collision_with_impediments(renderer, &rect1, impediments, IMPEDIMENTS_AMOUNT);
 
       SDL_SetRenderDrawColor(renderer, 242, 242, 242, 255);
       SDL_RenderClear(renderer);
@@ -115,7 +141,7 @@ int main(int argc, char ** argv)
 
       SDL_RenderFillRect(renderer, &rect1);
       SDL_RenderFillRect(renderer, &ground);
-      rend_impediments(renderer, impediments, 2);
+      rend_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
 
       if (collision)
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
