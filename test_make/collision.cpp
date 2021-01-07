@@ -107,7 +107,8 @@ SDL_Texture* renderText(const std::string &message, const std::string &fontFile,
 
 void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char* label)
 {
-  SDL_Color color = { 255, 255, 255, 255 };
+  // SDL_Color color = { 255, 255, 255, 255 };
+  SDL_Color color = { 30, 30, 30, 255 };  
   SDL_Texture *text = renderText(label, "./res/linux-libertine/LinLibertine_aBS.ttf",
 				  color, 64, renderer);
 
@@ -121,8 +122,10 @@ void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char
   //Get the texture w/h so we can center it in the screen
   int iW, iH;
   SDL_QueryTexture(text, NULL, NULL, &iW, &iH);
+  // int x = SCREEN_WIDTH / 2 - iW / 2;
+  // int y = SCREEN_HEIGHT / 2 - iH / 2;
   int x = SCREEN_WIDTH / 2 - iW / 2;
-  int y = SCREEN_HEIGHT / 2 - iH / 2;
+  int y = 0;
   
   renderTexture(text, renderer, x, y);  
 }
@@ -181,7 +184,7 @@ int main(int argc, char ** argv)
       
       horizont += GAME_SPEED;
       // rect2.x -= GAME_SPEED;
-      std::string label = "jora: " + int_to_str(horizont);
+      std::string label = "elapsed time: " + int_to_str(horizont);
 
       move_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
 
