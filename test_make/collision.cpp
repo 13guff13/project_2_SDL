@@ -2,6 +2,7 @@
 #include "./SDL2_ttf-2.0.15/SDL2_ttf-2.0.15/SDL_ttf.h"
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <SDL.h>
 #include <math.h>
 
@@ -59,24 +60,6 @@ void logSDLError(std::ostream &os, const std::string &msg){
   os << msg << " error: " << SDL_GetError() << std::endl;
 }
 
-
-void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h){
-  //Setup the destination rectangle to be at the position we want
-  SDL_Rect dst;
-  dst.x = x;
-  dst.y = y;
-  dst.w = w;
-  dst.h = h;
-  SDL_RenderCopy(ren, tex, NULL, &dst);
-}
-/**
- * Draw an SDL_Texture to an SDL_Renderer at position x, y, preserving
- * the texture's width and height
- * @param tex The source texture we want to draw
- * @param ren The renderer we want to draw to
- * @param x The x coordinate to draw to
- * @param y The y coordinate to draw to
- */
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
   float scale = 1;
   int w, h;
@@ -122,10 +105,10 @@ SDL_Texture* renderText(const std::string &message, const std::string &fontFile,
   return texture;
 }
 
-void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window)
+void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char* label)
 {
   SDL_Color color = { 255, 255, 255, 255 };
-  SDL_Texture *text = renderText("Fuck project 2!", "./res/linux-libertine/LinLibertine_aBS.ttf",
+  SDL_Texture *text = renderText(label, "./res/linux-libertine/LinLibertine_aBS.ttf",
 				  color, 64, renderer);
 
   if (text == nullptr){
@@ -142,6 +125,11 @@ void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window)
   int y = SCREEN_HEIGHT / 2 - iH / 2;
   
   renderTexture(text, renderer, x, y);  
+}
+std::string int_to_str(int x) {
+   std::stringstream ss;
+   ss << x;
+   return ss.str();
 }
 
 int main(int argc, char ** argv)
@@ -183,6 +171,9 @@ int main(int argc, char ** argv)
   float jump_position = 0.0;
   float Pi = 3.14;
   int j_y = y;
+
+  // .c_str()  
+  // concat_str = my_str + int_to_str(x);
   while (!quit)
     {
       SDL_Delay(30);
@@ -190,7 +181,8 @@ int main(int argc, char ** argv)
       
       horizont += GAME_SPEED;
       // rect2.x -= GAME_SPEED;
-      
+      std::string label = "jora: " + int_to_str(horizont);
+
       move_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
 
       // jump
@@ -251,7 +243,7 @@ int main(int argc, char ** argv)
       
       SDL_RenderFillRect(renderer, &rect2);
 
-      view_foreground_text(renderer, window);
+      view_foreground_text(renderer, window, label.c_str());
 
       SDL_RenderPresent(renderer);
     }
