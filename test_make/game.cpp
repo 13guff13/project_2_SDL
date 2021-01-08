@@ -182,26 +182,8 @@ void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
   SDL_Rect clip;
   clip.x = 0;
   clip.y = 0;
-  clip.w = 30;
-  clip.h = 40;
-
-  // std::cout << "clip: " << std::endl;
-  // std::cout << "  "<< clip.x << std::endl;
-  // std::cout << "  "<< clip.y << std::endl;
-  // std::cout << "  "<< clip.w << std::endl;
-  // std::cout << "  "<< clip.h << std::endl;
-
-  SDL_Rect src_rect;
-  clip.x = 0;
-  clip.y = 0;
-  clip.w = 30;
-  clip.h = 40;
-
-  SDL_Rect dest_rect;
-  clip.x = 0;
-  clip.y = 0;
-  clip.w = 300;
-  clip.h = 400;
+  clip.w = 0;
+  clip.h = 0;
 
   // SDL_RenderCopy(renderer, image, NULL, NULL);
   
@@ -301,11 +283,11 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
 void renderClippedTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip = nullptr)
 {
 
-  float scale = 2;
+  float scale = .6;
   int w, h;
   SDL_QueryTexture(tex, NULL, NULL, &w, &h);
   // printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
-  int clipw = 35,cliph = 30;
+  int clipw = 160,cliph = 160;
   
   SDL_Rect dst;
   dst.x = x;
@@ -363,7 +345,7 @@ int main(int argc, char **argv){
   // std::string imagePath = getResourcePath() + "Marine.bmp";
   const std::string resPath = getResourcePath();
   SDL_Texture *background = loadTexture(resPath + "mario-block.png", renderer);
-  SDL_Texture *image = loadTexture(resPath + "zerg_scourge.png", renderer);
+  SDL_Texture *image = loadTexture(resPath + "mario_8bit-small.png", renderer);
   if (background == nullptr || image == nullptr){
     cleanup(background, image, renderer, window);    
     IMG_Quit();
