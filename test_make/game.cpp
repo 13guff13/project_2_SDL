@@ -76,26 +76,14 @@ int collision_with_impediments(SDL_Renderer* renderer, SDL_Rect* character, SDL_
 }
 // impediments end -----------------------------------------------------------------------------------------
 
-
-
-
-
-
 /**
- * Log an SDL error with some error message to the output stream of our choice
- * @param os The output stream to write the message to
- * @param msg The error message to write, format will be msg error: SDL_GetError()
+ * Log an SDL error
  */
 void logSDLError(std::ostream &os, const std::string &msg){
   os << msg << " error: " << SDL_GetError() << std::endl;
 }
 
 /*
- * @param message The message we want to display
- * @param fontFile The font we want to use to render the text
- * @param color The color we want the text to be
- * @param fontSize The size we want the font to be
- * @param renderer The renderer to load the texture in
  * @\return An SDL_Texture containing the rendered message, or nullptr if something went wrong
  */
 SDL_Texture* renderText(const std::string &message, const std::string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer)
@@ -106,8 +94,6 @@ SDL_Texture* renderText(const std::string &message, const std::string &fontFile,
     logSDLError(std::cout, "TTF_OpenFont");
     return nullptr;
   }	
-  //We need to first render to a surface as that's what TTF_RenderText
-  //returns, then load that surface into a texture
   SDL_Surface *surf = TTF_RenderText_Blended(font, message.c_str(), color);
   if (surf == nullptr){
     TTF_CloseFont(font);
@@ -159,7 +145,7 @@ void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char
     SDL_Quit();
     return ;
   }
-  //Get the texture w/h so we can center it in the screen
+  //Get the texture w/h so we can adjust its position
   int iW, iH;
   SDL_QueryTexture(text, NULL, NULL, &iW, &iH);
   int x = SCREEN_WIDTH / 2 - iW / 2;
@@ -174,8 +160,6 @@ void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
   if (*x == NULL) {
     int iW, iH;
     SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
-    *x = SCREEN_WIDTH / 2 - iW / 2;
-    *y = SCREEN_HEIGHT / 2 - iH / 2;
   }
 
   SDL_Rect clip;
@@ -206,8 +190,6 @@ void view_background(SDL_Texture* background, SDL_Renderer *renderer)
 
 /**
  * Loads an image into a texture on the rendering device
- * @param file The image file to load
- * @param ren The renderer to load the texture onto
  * @return the loaded texture, or nullptr if something went wrong.
  */
 SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren){
@@ -219,14 +201,7 @@ SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren){
 }
 
 /**
- * Draw an SDL_Texture to an SDL_Renderer at position x, y, with some desired
- * width and height
- * @param tex The source texture we want to draw
- * @param ren The renderer we want to draw to
- * @param x The x coordinate to draw to
- * @param y The y coordinate to draw to
- * @param w The width of the texture to draw
- * @param h The height of the texture to draw
+ * Draw an SDL_Texture to an SDL_Renderer at position x, y
  */
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h){
   //Setup the destination rectangle to be at the position we want
@@ -238,46 +213,16 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int
   SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 /**
- * Draw an SDL_Texture to an SDL_Renderer at position x, y, preserving
- * the texture's width and height
- * @param tex The source texture we want to draw
- * @param ren The renderer we want to draw to
- * @param x The x coordinate to draw to
- * @param y The y coordinate to draw to
+ * Draw an SDL_Texture to an SDL_Renderer at position x, y
  */
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
   float scale = 1;
   int w, h;
   SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-  // actual width - w actual height - h
-  // printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
   renderTexture(tex, ren, x, y, (int)w*scale, (int)h*scale);
 }
 /**
- * Draw an SDL_Texture to an SDL_Renderer at some destination rect
- * taking a clip of the texture if desired
- * @param tex The source texture we want to draw
- * @param ren The renderer we want to draw to
- * @param dst The destination rectangle to render the texture to
- * @param clip The sub-section of the texture to draw (clipping rect)
- *		default of nullptr draws the entire texture
- */
-// void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip = nullptr)
-// {
-//   SDL_RenderCopy(ren, tex, clip, &dst);
-// }
-
-/**
- * Draw an SDL_Texture to an SDL_Renderer at position x, y, preserving
- * the texture's width and height and taking a clip of the texture if desired
- * If a clip is passed, the clip's width and height will be used instead of
- *	the texture's
- * @param tex The source texture we want to draw
- * @param ren The renderer we want to draw to
- * @param x The x coordinate to draw to
- * @param y The y coordinate to draw to
- * @param clip The sub-section of the texture to draw (clipping rect)
- *		default of nullptr draws the entire texture
+ * Draw an SDL_Texture to an SDL_Renderer
  */
 void renderClippedTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip = nullptr)
 {
@@ -285,7 +230,6 @@ void renderClippedTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL
   float scale = .6;
   int w, h;
   SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-  // printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
   int clipw = 160,cliph = 160;
   
   SDL_Rect dst;
@@ -340,8 +284,6 @@ int main(int argc, char **argv){
   }
 
   // ------adding bmp---------
-  // std::string imagePath = getResourcePath() + "cs8x8.bmp";
-  // std::string imagePath = getResourcePath() + "Marine.bmp";
   const std::string resPath = getResourcePath();
   SDL_Texture *background = loadTexture(resPath + "mario-block.png", renderer);
   SDL_Texture *image = loadTexture(resPath + "mario_8bit-small.png", renderer);
@@ -352,7 +294,7 @@ int main(int argc, char **argv){
     return 1;
   }
   // character default position
-  int orig_x = 40;
+  int orig_x = 0;
   int orig_y = FLOOR - 100;
   SDL_Rect character = { orig_x, orig_y, 100, 100 };
 
@@ -402,10 +344,9 @@ int main(int argc, char **argv){
     }
     if (y > orig_y) {
       jump_position = 0;
-      y = orig_y;//todo: remove this for Nick!
+      y = orig_y;
     }
 
-    
     // trash end ---------------------------------------------------------------
     
     //Render the scene
@@ -426,7 +367,7 @@ int main(int argc, char **argv){
     rend_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
       
     SDL_RenderPresent(renderer);
-    // SDL_Delay(1000);
+    SDL_Delay(10);
   }
   
   // todo: make clean up on each stage that can encounter an erro!
