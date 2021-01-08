@@ -354,12 +354,12 @@ int main(int argc, char **argv){
   // character default position
   int orig_x = 40;
   int orig_y = FLOOR - 100;
-  // image->x = x;
-  // image->y = y;
+  SDL_Rect character = { orig_x, orig_y, 100, 100 };
 
   int progress = 0;
   int hope_height = 190;
   float jump_position = 0.0;
+  
   // ---- draw the texture -------
   //A sleepy rendering loop, wait for 3 seconds and render and present the screen each time
   int x = NULL, y = NULL;
@@ -415,6 +415,13 @@ int main(int argc, char **argv){
     view_foreground(image, renderer, &x, &y);
     view_foreground_text(renderer, window, label.c_str());
 
+    character.x = x;
+    character.y = y;
+    int collision = collision_with_impediments(renderer, &character, impediments, IMPEDIMENTS_AMOUNT);
+    if (collision)
+      SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    else
+      SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     move_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
     rend_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
       
