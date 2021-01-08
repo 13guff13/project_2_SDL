@@ -6,10 +6,11 @@
 #include <SDL.h>
 #include "res_path.h"
 #include "cleanup.h"
+#include "helpers.h"
 
 const int SCREEN_WIDTH  = 640;
 const int SCREEN_HEIGHT = 480;
-
+const float GAME_SPEED = 7;
 const float SCALE_TILE = 0.2;
 const int TILE_WIDTH = (int) 148 * SCALE_TILE;
 const int TILE_HEIGHT = (int) 125 * SCALE_TILE;
@@ -313,6 +314,8 @@ int main(int argc, char **argv){
     return 1;
   }
 
+  int progress = 0;
+  
   // ---- draw the texture -------
   //A sleepy rendering loop, wait for 3 seconds and render and present the screen each time
   int x = NULL, y = NULL;
@@ -335,12 +338,20 @@ int main(int argc, char **argv){
 	quit = false;
       }
     }
+
+    // trash start ---------------------------------------------------------------
+    
+    progress += GAME_SPEED;
+    std::string label = "elapsed score: " + int_to_str(progress);
+    
+    // trash end ---------------------------------------------------------------
+    
     //Render the scene
     SDL_RenderClear(renderer);
 
     view_background(background, renderer);
     view_foreground(image, renderer, &x, &y);
-    view_foreground_text(renderer, window, "some text");
+    view_foreground_text(renderer, window, label.c_str());
       
     SDL_RenderPresent(renderer);
     // SDL_Delay(1000);
