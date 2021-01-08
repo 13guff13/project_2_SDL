@@ -10,20 +10,77 @@
 
 const int SCREEN_WIDTH  = 640;
 const int SCREEN_HEIGHT = 480;
-const float GAME_SPEED = 7;
+// const float GAME_SPEED = 7;
 const float SCALE_TILE = 0.2;
 const int TILE_WIDTH = (int) 148 * SCALE_TILE;
 const int TILE_HEIGHT = (int) 125 * SCALE_TILE;
-
 const float SCALE_CARACTER = 0.2;
-
 const int STEP = 3;
+
+const int FLOOR = SCREEN_HEIGHT - 60;
+const float GAME_SPEED = 7;
+const int LEVEL_LENGTH = 1000;
 
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y);
 void renderClippedTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, SDL_Rect *clip);
 void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, SDL_Rect dst, SDL_Rect *clip = nullptr);
 SDL_Texture* renderText(const std::string &message, const std::string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer);
+
+// impediments --------------------------------------------------------------------------
+
+const int IMPEDIMENTS_AMOUNT = 3;
+
+int orig_impediments_x[30] = {
+				   SCREEN_WIDTH + 920,
+				   SCREEN_WIDTH + 770,
+				   SCREEN_WIDTH + 370,
+};
+
+
+
+SDL_Rect impediments[30] = {
+			    { SCREEN_WIDTH + 920, FLOOR - 50, 80, 50 },
+			    { SCREEN_WIDTH + 470, FLOOR - 60, 80, 60 },
+			    { SCREEN_WIDTH + 270, FLOOR - 60, 80, 60 },
+};
+
+void reset_impediments(SDL_Rect* impediments, int amount) {
+  for (int i =0; i < amount; i++) {
+    impediments[i].x = orig_impediments_x[i];
+  }
+  std::cout << "impediments were reseted !!!!" << std::endl;
+}
+void move_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount) {
+  if(impediments[0].x + impediments[0].w < 0) {
+    reset_impediments(impediments, amount);
+  }
+  for (int i =0; i < amount; i++) {
+    impediments[i].x -= GAME_SPEED;
+  }
+}
+void rend_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount) {
+  for (int i =0; i < amount; i++) {
+    SDL_RenderFillRect(renderer, &impediments[i]);
+  }
+  //inf: render ground
+  SDL_Rect ground = { 0, FLOOR, SCREEN_WIDTH, 70};
+  SDL_RenderFillRect(renderer, &ground);
+}
+int collision_with_impediments(SDL_Renderer* renderer, SDL_Rect* character, SDL_Rect* impediments, int amount) {
+  for (int i =0; i < amount; i++) {
+    if (SDL_HasIntersection(character, &impediments[i]) == true) {
+      return 1;
+    }
+  }
+  return 0;
+}
+// impediments end -----------------------------------------------------------------------------------------
+
+
+
+
+
 
 /**
  * Log an SDL error with some error message to the output stream of our choice
@@ -333,6 +390,13 @@ int main(int argc, char **argv){
 	  quit = true;
 	}
 	move_obj_position(&x, &y, keycode);
+	// if(e.key.keysym.sym == 110){
+	//   reset_impediments(impediments, IMPEDIMENTS_AMOUNT);
+	//   progress = 0;
+	//   rect1.x = x;
+	//   rect1.y = y;
+	// }
+
       }
       if (e.type == SDL_MOUSEBUTTONDOWN){
 	quit = false;
@@ -352,6 +416,9 @@ int main(int argc, char **argv){
     view_background(background, renderer);
     view_foreground(image, renderer, &x, &y);
     view_foreground_text(renderer, window, label.c_str());
+
+    move_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
+    rend_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
       
     SDL_RenderPresent(renderer);
     // SDL_Delay(1000);
