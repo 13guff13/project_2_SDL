@@ -21,12 +21,17 @@ main.o: main.cpp
 	echo "[LOG]$(CXX) $(CXXFLAGS) $< -o $@"
 	$(CXX) $(CXXFLAGS) $< -o $@
 
-all: $(EXE)
-
 coll: coll.o
 	$(CXX) $< $(LDFLAGS) -o $@
 
 coll.o: collision.cpp
+	echo "[LOG]$(CXX) $(CXXFLAGS) $< -o $@"
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+game: game.o
+	$(CXX) $< $(LDFLAGS) -o $@
+
+game.o: game.cpp
 	echo "[LOG]$(CXX) $(CXXFLAGS) $< -o $@"
 	$(CXX) $(CXXFLAGS) $< -o $@
 
