@@ -1,9 +1,10 @@
 #include "./SDL2_image-2.0.5/SDL2_image-2.0.5/SDL_image.h"
 #include "./SDL2_ttf-2.0.15/SDL2_ttf-2.0.15/SDL_ttf.h"
+#include <SDL.h>
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <SDL.h>
+#include <math.h>
 #include "res_path.h"
 #include "cleanup.h"
 #include "helpers.h"
@@ -36,8 +37,6 @@ int orig_impediments_x[30] = {
 				   SCREEN_WIDTH + 770,
 				   SCREEN_WIDTH + 370,
 };
-
-
 
 SDL_Rect impediments[30] = {
 			    { SCREEN_WIDTH + 920, FLOOR - 50, 80, 50 },
@@ -352,9 +351,15 @@ int main(int argc, char **argv){
     SDL_Quit();
     return 1;
   }
+  // character default position
+  int orig_x = 40;
+  int orig_y = FLOOR - 100;
+  // image->x = x;
+  // image->y = y;
 
   int progress = 0;
-  
+  int hope_height = 190;
+  float jump_position = 0.0;
   // ---- draw the texture -------
   //A sleepy rendering loop, wait for 3 seconds and render and present the screen each time
   int x = NULL, y = NULL;
@@ -372,12 +377,12 @@ int main(int argc, char **argv){
 	  quit = true;
 	}
 	move_obj_position(&x, &y, keycode);
-	// if(e.key.keysym.sym == 110){
-	//   reset_impediments(impediments, IMPEDIMENTS_AMOUNT);
-	//   progress = 0;
-	//   rect1.x = x;
-	//   rect1.y = y;
-	// }
+	if(e.key.keysym.sym == 110){
+	  reset_impediments(impediments, IMPEDIMENTS_AMOUNT);
+	  progress = 0;
+	  x = orig_x;
+	  y = orig_y;
+	}
 
       }
       if (e.type == SDL_MOUSEBUTTONDOWN){
@@ -389,6 +394,17 @@ int main(int argc, char **argv){
     
     progress += GAME_SPEED;
     std::string label = "elapsed score: " + int_to_str(progress);
+
+    // jump
+    if (y < orig_y) {
+      jump_position += 0.07;
+      y = orig_y - sin(jump_position) * hope_height;
+    }
+    if (y > orig_y) {
+      jump_position = 0;
+      y = orig_y;//todo: remove this for Nick!
+    }
+
     
     // trash end ---------------------------------------------------------------
     
