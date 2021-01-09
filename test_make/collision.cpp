@@ -14,45 +14,43 @@ const int LEVEL_LENGTH = 1000;
 
 const int IMPEDIMENTS_AMOUNT = 3;
 
-int orig_impediments_x[30] = {
-				   SCREEN_WIDTH + 920,
-				   SCREEN_WIDTH + 770,
-				   SCREEN_WIDTH + 370,
+int orig_x[30] = {
+		  SCREEN_WIDTH + 920,
+		  SCREEN_WIDTH + 770,
+		  SCREEN_WIDTH + 370,
 };
 
 
 
-SDL_Rect impediments[30] = {
-			    { SCREEN_WIDTH + 920, FLOOR - 50, 80, 50 },
-			    { SCREEN_WIDTH + 470, FLOOR - 60, 80, 60 },
-			    { SCREEN_WIDTH + 270, FLOOR - 60, 80, 60 },
+SDL_Rect obstacle[30] = {
+			 { SCREEN_WIDTH + 920, FLOOR - 50, 80, 50 },
+			 { SCREEN_WIDTH + 470, FLOOR - 60, 80, 60 },
+			 { SCREEN_WIDTH + 270, FLOOR - 60, 80, 60 },
 };
 
-void reset_impediments(SDL_Rect* impediments, int amount) {
+void reset_obstacle(SDL_Rect* obstacle, int amount) {
   for (int i =0; i < amount; i++) {
-    impediments[i].x = orig_impediments_x[i];
+    obstacle[i].x = orig_x[i];
   }
 }
 
-void move_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount) {
+void move_obstacle(SDL_Renderer * renderer, SDL_Rect* obstacle, int amount) {
   for (int i =0; i < amount; i++) {
-    //todo: add width to x position
-    //todo: add repeat impediments method
-    if(impediments[i].x + impediments[i].w < 0) {
-      impediments[i].x = orig_impediments_x[i];
+    if(obstacle[i].x + obstacle[i].w < 0) {
+      obstacle[i].x = orig_x[i];
     }
-    impediments[i].x -= GAME_SPEED;
+    obstacle[i].x -= GAME_SPEED;
   }
 }
-void rend_impediments(SDL_Renderer * renderer, SDL_Rect* impediments, int amount) {
+void rend_obstacle(SDL_Renderer * renderer, SDL_Rect* obstacle, int amount) {
   for (int i =0; i < amount; i++) {
-    SDL_RenderFillRect(renderer, &impediments[i]);
+    SDL_RenderFillRect(renderer, &obstacle[i]);
   }
 }
 
-int collision_with_impediments(SDL_Renderer* renderer, SDL_Rect* character, SDL_Rect* impediments, int amount) {
+int collision_with_obstacle(SDL_Renderer* renderer, SDL_Rect* character, SDL_Rect* obstacle, int amount) {
   for (int i =0; i < amount; i++) {
-    if (SDL_HasIntersection(character, &impediments[i]) == true) {
+    if (SDL_HasIntersection(character, &obstacle[i]) == true) {
       return 1;
     }
   }
@@ -67,9 +65,6 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
   float scale = 1;
   int w, h;
   SDL_QueryTexture(tex, NULL, NULL, &w, &h);
-  // actual width - w actual height - h
-  // printf("renderTexture: (x=%d,y=%d,w=%d,h=%d, scale=%.2f)", x, y, w, h, scale);
-  // renderTexture(tex, ren, x, y, (int)w*scale, (int)h*scale);
   SDL_Rect dst;
   dst.x = x;
   dst.y = y;
@@ -83,26 +78,17 @@ SDL_Texture* renderText(const std::string &message, const std::string &fontFile,
   //Open the font
   TTF_Font *font = TTF_OpenFont(fontFile.c_str(), fontSize);
   if (font == nullptr){
-    logSDLError(std::cout, "TTF_OpenFont");
-      // std::cout << "[JORA1]" << std::endl;
     return nullptr;
   }	
-  //We need to first render to a surface as that's what TTF_RenderText
-  //returns, then load that surface into a texture
   SDL_Surface *surf = TTF_RenderText_Blended(font, message.c_str(), color);
   if (surf == nullptr){
     TTF_CloseFont(font);
-    logSDLError(std::cout, "TTF_RenderText");
-    // std::cout << "[JORA2]" << std::endl;    
     return nullptr;
   }
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surf);
   if (texture == nullptr){
-    // std::cout << "[JORA3]" << std::endl;    
     logSDLError(std::cout, "CreateTexture");
-    // return nullptr;    
   }
-  //Clean up the surface and font
   SDL_FreeSurface(surf);
   TTF_CloseFont(font);
   return texture;
@@ -110,19 +96,15 @@ SDL_Texture* renderText(const std::string &message, const std::string &fontFile,
 
 void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char* label)
 {
-  // SDL_Color color = { 255, 255, 255, 255 };
   SDL_Color color = { 30, 30, 30, 255 };  
   SDL_Texture *text = renderText(label, "./res/linux-libertine/LinLibertine_aBS.ttf",
-				  color, 64, renderer);
+				 color, 64, renderer);
 
   if (text == nullptr){
-    // cleanup(renderer, window);
-    std::cout << "[JORA]" << std::endl;    
     TTF_Quit();
     SDL_Quit();
     return ;
   }
-  //Get the texture w/h so we can center it in the screen
   int iW, iH;
   SDL_QueryTexture(text, NULL, NULL, &iW, &iH);
 
@@ -134,27 +116,13 @@ void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char
 
 void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int x, int y)
 {
-  // rendred at give position if (passed(x,y))
   if (x == NULL) {
     int iW, iH;
     SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
   }
-
-  // SDL_Rect clip;
-  // clip.x = 0;
-  // clip.y = 0;
-  // clip.w = 0;
-  // clip.h = 0;
-
-
   SDL_Rect DestR;
-
-  // SrcR.x = 0;
-  // SrcR.y = 0;
-  // SrcR.w = SHAPE_SIZE;
-  // SrcR.h = SHAPE_SIZE;
-  const int SHAPE_W = 103;
-  const int SHAPE_H = 103;  
+  const int SHAPE_W = 70;
+  const int SHAPE_H = 100;
     
   DestR.x = x;
   DestR.y = y;
@@ -162,8 +130,6 @@ void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int x, int y)
   DestR.h = SHAPE_H;
   
   SDL_RenderCopy(renderer, image, NULL, &DestR);
-  // renderClippedTexture(image, renderer, *x, *y, &clip);
-  // renderTexture(image, renderer, *x, *y);
 }
 
 SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren){
@@ -178,25 +144,21 @@ SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren){
 }
 
 std::string int_to_str(int x) {
-   std::stringstream ss;
-   ss << x;
-   return ss.str();
+  std::stringstream ss;
+  ss << x;
+  return ss.str();
 }
 
 int main(int argc, char ** argv)
 {
-  // variables
-  // std::cout << impediments[0].x << "::" << impediments[1].x << std::endl;
   bool quit = false;
   SDL_Event event;
   int x = 40;
   int y = FLOOR - 100;
 
-
-
   // init SDL
   SDL_Init(SDL_INIT_VIDEO);
-  SDL_Window * window = SDL_CreateWindow("Unicorn su*k",
+  SDL_Window * window = SDL_CreateWindow("Unicorn attack",
 					 SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   SDL_Renderer * renderer = SDL_CreateRenderer(window, -1, 0);
 
@@ -209,45 +171,36 @@ int main(int argc, char ** argv)
   
   SDL_Texture *ch_image = loadTexture("./res/m1.bmp", renderer);
   if (ch_image == nullptr){
-    std::cout << "[ERROR SDL] "<< SDL_GetError() << std::endl;
     return 0;
   }
   SDL_Rect ground = { 0, FLOOR, SCREEN_WIDTH, 70};
 
-  SDL_Rect rect1 = { x, y, 100, 100 };
-  // SDL_Rect rect2 = { 0, FLOOR - 100, 70, 100 };
+  SDL_Rect rect1 = { x, y, 70, 100 };
 
   int horizont = SCREEN_WIDTH;
   
   // handle events
   int hope_height = 190;
   float jump_position = 0.0;
-  float Pi = 3.14;
   int j_y = y;
 
-  // .c_str()  
-  // concat_str = my_str + int_to_str(x);
   while (!quit)
     {
       SDL_Delay(30);
       SDL_PollEvent(&event);
       
       horizont += GAME_SPEED;
-      // rect2.x -= GAME_SPEED;
-      std::string label = "elapsed time: " + int_to_str(horizont);
+      std::string label = "score: " + int_to_str(horizont);
+      move_obstacle(renderer, obstacle, IMPEDIMENTS_AMOUNT);
 
-      move_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
-
-      // jump
       if (rect1.y < y) {
       	jump_position += 0.07;
       	rect1.y = y - sin(jump_position) * hope_height;
       }
       if (rect1.y > y) {
 	jump_position = 0;
-	rect1.y = y;//todo: remove this for Nick!
+	rect1.y = y;
       }
-      std::cout << "jump" << jump_position << " " << rect1.y<< " " << y << std::endl;
       
       switch (event.type)
         {
@@ -255,10 +208,9 @@ int main(int argc, char ** argv)
 	  quit = true;
 	  break;
 	case SDL_KEYDOWN:
-	  std::cout << "keycode: " << event.key.keysym.sym << std::endl;
 	  if(event.key.keysym.sym == SDLK_ESCAPE) quit = true;
 	  if(event.key.keysym.sym == 110){
-	    reset_impediments(impediments, IMPEDIMENTS_AMOUNT);
+	    reset_obstacle(obstacle, IMPEDIMENTS_AMOUNT);
 	    horizont = 0;
 	    rect1.x = x;
 	    rect1.y = y;
@@ -274,35 +226,21 @@ int main(int argc, char ** argv)
 	  break;
         }
 
-      // SDL_bool collision = SDL_HasIntersection(&rect1, &rect2);
-      int imp_collision = collision_with_impediments(renderer, &rect1, impediments, IMPEDIMENTS_AMOUNT);
+      int imp_collision = collision_with_obstacle(renderer, &rect1, obstacle, IMPEDIMENTS_AMOUNT);
 
-      SDL_SetRenderDrawColor(renderer, 242, 242, 242, 255);
+      SDL_SetRenderDrawColor(renderer, 42, 2, 142, 255);
       SDL_RenderClear(renderer);
       
-      // if (collision)
-      // 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-      // else
-      // 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-
       if (imp_collision == 1) {
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
       }
       else {
-	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+	SDL_SetRenderDrawColor(renderer, 100, 10, 200, 255);
       }
 
-      // SDL_RenderFillRect(renderer, &rect1);
+      SDL_RenderFillRect(renderer, &rect1);;
       SDL_RenderFillRect(renderer, &ground);
-      rend_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
-
-      // if (collision)
-      // 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-      // else
-      // 	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-
-      
-      /* SDL_RenderFillRect(renderer, &rect2); */
+      rend_obstacle(renderer, obstacle, IMPEDIMENTS_AMOUNT);
 
       view_foreground_text(renderer, window, label.c_str());
       
@@ -310,8 +248,6 @@ int main(int argc, char ** argv)
 
       SDL_RenderPresent(renderer);
     }
-
-  // cleanup SDL
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
