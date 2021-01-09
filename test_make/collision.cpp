@@ -20,8 +20,6 @@ int orig_x[30] = {
 		  SCREEN_WIDTH + 370,
 };
 
-
-
 SDL_Rect obstacle[30] = {
 			 { SCREEN_WIDTH + 920, FLOOR - 50, 80, 50 },
 			 { SCREEN_WIDTH + 470, FLOOR - 60, 80, 60 },
@@ -33,7 +31,6 @@ void reset_obstacle(SDL_Rect* obstacle, int amount) {
     obstacle[i].x = orig_x[i];
   }
 }
-
 void move_obstacle(SDL_Renderer * renderer, SDL_Rect* obstacle, int amount) {
   for (int i =0; i < amount; i++) {
     if(obstacle[i].x + obstacle[i].w < 0) {
@@ -47,7 +44,6 @@ void rend_obstacle(SDL_Renderer * renderer, SDL_Rect* obstacle, int amount) {
     SDL_RenderFillRect(renderer, &obstacle[i]);
   }
 }
-
 int collision_with_obstacle(SDL_Renderer* renderer, SDL_Rect* character, SDL_Rect* obstacle, int amount) {
   for (int i =0; i < amount; i++) {
     if (SDL_HasIntersection(character, &obstacle[i]) == true) {
@@ -57,11 +53,7 @@ int collision_with_obstacle(SDL_Renderer* renderer, SDL_Rect* character, SDL_Rec
   return 0;
 }
 
-void logSDLError(std::ostream &os, const std::string &msg){
-  os << msg << " error: " << SDL_GetError() << std::endl;
-}
-
-void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
+void show_texture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
   float scale = 1;
   int w, h;
   SDL_QueryTexture(tex, NULL, NULL, &w, &h);
@@ -73,7 +65,7 @@ void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y){
   SDL_RenderCopy(ren, tex, NULL, &dst);
 }
 
-SDL_Texture* renderText(const std::string &message, const std::string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer)
+SDL_Texture* show_text(const std::string &message, const std::string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer)
 {
   //Open the font
   TTF_Font *font = TTF_OpenFont(fontFile.c_str(), fontSize);
@@ -86,18 +78,15 @@ SDL_Texture* renderText(const std::string &message, const std::string &fontFile,
     return nullptr;
   }
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surf);
-  if (texture == nullptr){
-    logSDLError(std::cout, "CreateTexture");
-  }
   SDL_FreeSurface(surf);
   TTF_CloseFont(font);
   return texture;
 }
 
-void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char* label)
+void show_label(SDL_Renderer *renderer, SDL_Window *window, const char* label)
 {
   SDL_Color color = { 30, 30, 30, 255 };  
-  SDL_Texture *text = renderText(label, "./res/linux-libertine/LinLibertine_aBS.ttf",
+  SDL_Texture *text = show_text(label, "./res/linux-libertine/LinLibertine_aBS.ttf",
 				 color, 64, renderer);
 
   if (text == nullptr){
@@ -111,7 +100,7 @@ void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char
   int x = SCREEN_WIDTH / 2 - iW / 2;
   int y = 0;
   
-  renderTexture(text, renderer, x, y);  
+  show_texture(text, renderer, x, y);  
 }
 
 void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int x, int y)
@@ -132,7 +121,7 @@ void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int x, int y)
   SDL_RenderCopy(renderer, image, NULL, &DestR);
 }
 
-SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren){
+SDL_Texture* LDT(const std::string &file, SDL_Renderer *ren){
   SDL_Surface* bmp = SDL_LoadBMP(file.c_str());
   if (bmp == nullptr){
     std::cout << "[ERROR SDL] "<< SDL_GetError() << std::endl;
@@ -164,12 +153,11 @@ int main(int argc, char ** argv)
 
   //------ init SDL_TTF lib --------
   if (TTF_Init() != 0){
-    logSDLError(std::cout, "TTF_Init");
     SDL_Quit();
     return 1;
   }
   
-  SDL_Texture *ch_image = loadTexture("./res/m1.bmp", renderer);
+  SDL_Texture *ch_image = LDT("./res/m1.bmp", renderer);
   if (ch_image == nullptr){
     return 0;
   }
@@ -186,9 +174,9 @@ int main(int argc, char ** argv)
 
   while (!quit)
     {
-      SDL_Delay(30);
+      SDL_Delay(20);
       SDL_PollEvent(&event);
-      
+
       horizont += GAME_SPEED;
       std::string label = "score: " + int_to_str(horizont);
       move_obstacle(renderer, obstacle, IMPEDIMENTS_AMOUNT);
@@ -242,7 +230,7 @@ int main(int argc, char ** argv)
       SDL_RenderFillRect(renderer, &ground);
       rend_obstacle(renderer, obstacle, IMPEDIMENTS_AMOUNT);
 
-      view_foreground_text(renderer, window, label.c_str());
+      show_label(renderer, window, label.c_str());
       
       view_foreground(ch_image, renderer, rect1.x, rect1.y);
 
