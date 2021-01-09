@@ -132,10 +132,10 @@ void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char
   renderTexture(text, renderer, x, y);  
 }
 
-void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
+void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int x, int y)
 {
   // rendred at give position if (passed(x,y))
-  if (*x == NULL) {
+  if (x == NULL) {
     int iW, iH;
     SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
   }
@@ -153,11 +153,11 @@ void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
   // SrcR.y = 0;
   // SrcR.w = SHAPE_SIZE;
   // SrcR.h = SHAPE_SIZE;
-  const int SHAPE_W = 160;
-  const int SHAPE_H = 160;  
+  const int SHAPE_W = 120;
+  const int SHAPE_H = 120;  
     
-  DestR.x = 0;
-  DestR.y = 0;
+  DestR.x = x;
+  DestR.y = y;
   DestR.w = SHAPE_W;
   DestR.h = SHAPE_H;
   
@@ -306,7 +306,7 @@ int main(int argc, char ** argv)
 
       view_foreground_text(renderer, window, label.c_str());
       
-      view_foreground(ch_image, renderer, &rect1.x, &rect1.y);
+      view_foreground(ch_image, renderer, rect1.x, rect1.y);
 
       SDL_RenderPresent(renderer);
     }
