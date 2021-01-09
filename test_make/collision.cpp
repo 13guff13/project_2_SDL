@@ -131,6 +131,52 @@ void view_foreground_text(SDL_Renderer *renderer, SDL_Window *window, const char
   
   renderTexture(text, renderer, x, y);  
 }
+
+void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
+{
+  // rendred at give position if (passed(x,y))
+  if (*x == NULL) {
+    int iW, iH;
+    SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
+  }
+
+  // SDL_Rect clip;
+  // clip.x = 0;
+  // clip.y = 0;
+  // clip.w = 0;
+  // clip.h = 0;
+
+
+  SDL_Rect DestR;
+
+  // SrcR.x = 0;
+  // SrcR.y = 0;
+  // SrcR.w = SHAPE_SIZE;
+  // SrcR.h = SHAPE_SIZE;
+  const int SHAPE_W = 160;
+  const int SHAPE_H = 160;  
+    
+  DestR.x = 0;
+  DestR.y = 0;
+  DestR.w = SHAPE_W;
+  DestR.h = SHAPE_H;
+  
+  SDL_RenderCopy(renderer, image, NULL, &DestR);
+  // renderClippedTexture(image, renderer, *x, *y, &clip);
+  // renderTexture(image, renderer, *x, *y);
+}
+
+SDL_Texture* loadTexture(const std::string &file, SDL_Renderer *ren){
+  SDL_Surface* bmp = SDL_LoadBMP(file.c_str());
+  if (bmp == nullptr){
+    std::cout << "[ERROR SDL] "<< SDL_GetError() << std::endl;
+  }
+  
+
+  SDL_Texture *tex = SDL_CreateTextureFromSurface(ren, bmp);
+  return tex;
+}
+
 std::string int_to_str(int x) {
    std::stringstream ss;
    ss << x;
@@ -140,11 +186,10 @@ std::string int_to_str(int x) {
 int main(int argc, char ** argv)
 {
   // variables
-
-  std::cout << impediments[0].x << "::" << impediments[1].x << std::endl;
+  // std::cout << impediments[0].x << "::" << impediments[1].x << std::endl;
   bool quit = false;
   SDL_Event event;
-  int x = 10;
+  int x = 40;
   int y = FLOOR - 100;
 
 
@@ -162,7 +207,11 @@ int main(int argc, char ** argv)
     return 1;
   }
   
-
+  SDL_Texture *ch_image = loadTexture("./res/m1.bmp", renderer);
+  if (ch_image == nullptr){
+    std::cout << "[ERROR SDL] "<< SDL_GetError() << std::endl;
+    return 0;
+  }
   SDL_Rect ground = { 0, FLOOR, SCREEN_WIDTH, 70};
 
   SDL_Rect rect1 = { x, y, 100, 100 };
@@ -256,6 +305,8 @@ int main(int argc, char ** argv)
       /* SDL_RenderFillRect(renderer, &rect2); */
 
       view_foreground_text(renderer, window, label.c_str());
+      
+      view_foreground(ch_image, renderer, &rect1.x, &rect1.y);
 
       SDL_RenderPresent(renderer);
     }
