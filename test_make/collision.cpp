@@ -153,8 +153,8 @@ void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int x, int y)
   // SrcR.y = 0;
   // SrcR.w = SHAPE_SIZE;
   // SrcR.h = SHAPE_SIZE;
-  const int SHAPE_W = 120;
-  const int SHAPE_H = 120;  
+  const int SHAPE_W = 103;
+  const int SHAPE_H = 103;  
     
   DestR.x = x;
   DestR.y = y;
@@ -215,7 +215,7 @@ int main(int argc, char ** argv)
   SDL_Rect ground = { 0, FLOOR, SCREEN_WIDTH, 70};
 
   SDL_Rect rect1 = { x, y, 100, 100 };
-  SDL_Rect rect2 = { 0, FLOOR - 100, 70, 100 };
+  // SDL_Rect rect2 = { 0, FLOOR - 100, 70, 100 };
 
   int horizont = SCREEN_WIDTH;
   
@@ -274,16 +274,16 @@ int main(int argc, char ** argv)
 	  break;
         }
 
-      SDL_bool collision = SDL_HasIntersection(&rect1, &rect2);
+      // SDL_bool collision = SDL_HasIntersection(&rect1, &rect2);
       int imp_collision = collision_with_impediments(renderer, &rect1, impediments, IMPEDIMENTS_AMOUNT);
 
       SDL_SetRenderDrawColor(renderer, 242, 242, 242, 255);
       SDL_RenderClear(renderer);
       
-      if (collision)
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-      else
-	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+      // if (collision)
+      // 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+      // else
+      // 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
 
       if (imp_collision == 1) {
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -292,14 +292,14 @@ int main(int argc, char ** argv)
 	SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
       }
 
-      SDL_RenderFillRect(renderer, &rect1);
+      // SDL_RenderFillRect(renderer, &rect1);
       SDL_RenderFillRect(renderer, &ground);
       rend_impediments(renderer, impediments, IMPEDIMENTS_AMOUNT);
 
-      if (collision)
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-      else
-	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+      // if (collision)
+      // 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+      // else
+      // 	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 
       
       /* SDL_RenderFillRect(renderer, &rect2); */
