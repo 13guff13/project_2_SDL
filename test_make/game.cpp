@@ -169,7 +169,18 @@ void view_foreground(SDL_Texture* image, SDL_Renderer *renderer, int* x, int* y)
   clip.h = 0;
 
   // SDL_RenderCopy(renderer, image, NULL, NULL);
-  
+    SDL_Rect DestR;
+
+  SrcR.x = 0;
+  SrcR.y = 0;
+  SrcR.w = SHAPE_SIZE;
+  SrcR.h = SHAPE_SIZE;
+
+  DestR.x = 640 / 2 - SHAPE_SIZE / 2;
+  DestR.y = 580 / 2 - SHAPE_SIZE / 2;
+  DestR.w = SHAPE_SIZE;
+  DestR.h = SHAPE_SIZE;
+
   renderClippedTexture(image, renderer, *x, *y, &clip);
   // renderTexture(image, renderer, *x, *y);
 }
